@@ -2,6 +2,9 @@
  * Gates.h
  * Creator: George Ferguson
  * Created: Sun Nov 27 14:08:51 2016
+ * Changed: Luba Le Xuan
+ * Date: Dec 3, 2016
+ * Added new_Or3Gate function
  */
 
 #ifndef GATES_H_

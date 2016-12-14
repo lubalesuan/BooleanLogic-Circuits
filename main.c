@@ -2,6 +2,9 @@
  * File: main.c
  * Creator: George Ferguson
  * Created: Mon Nov 28 14:11:17 2016
+ * Changed: Luba Le Xuan
+ * Date: Dec 3, 2016
+ * Added functions for circuits, testing for 2 inputs function, and code in main function 
  * Time-stamp: <Mon Nov 28 14:22:27 EST 2016 ferguson>
  */
 #include <stdio.h>
@@ -75,11 +78,11 @@ static Circuit* circuit3 () {
 }
 
 
-/*extra credit: one-bit adder circuit
-* yx+xz+xy
-* (y and z) or (x and z) or (x and y)
+/*extra credit: one-bit adder circuit. focs 13.10
+* for output d: (not x and y and c) or (x and not y and c) or (x and y and not c) or (x and y and c)
+* =(y and z) or (x and z) or (x and y)
 */
-static Circuit* circuit4() {
+static Circuit* circuitD() {
   Value** xyz = arrayValue3();
    //define gates
   Gate* xAndY = new_AndGate(xyz[0],xyz[1]);
@@ -97,6 +100,40 @@ static Circuit* circuit4() {
 	gates[3] = or;
 	//for (int i = 0; i < gates.size(); i++) Gate_print(gates[i]);
 	return  new_Circuit(3, xyz, 1, outputs, 4, gates);
+}
+
+/*extra credit: one-bit adder circuit. focs 13.10
+* for output z: (not x and not y and c) or (not x and y and not c) or (x and not y and not c) or (x and y and c)
+* (not x)(not y)c + (not x)y(not c) + x(not y)(not c) + xyc
+*/
+static Circuit* circuitZ() {
+  Value** xyz = arrayValue3();
+   //define gates
+  Value* x = xyz[0];
+  Value* y = xyz[1];
+  Value* c = xyz[2];
+  Gate* notX = new_Inverter(x);
+  Gate* notY = new_Inverter(y);
+  Gate* notC = new_Inverter(c);
+  Gate* notXnotYC = new_And3Gate(Gate_getOutput(notX),Gate_getOutput(notY),c); //not x and not y and c
+  Gate* notXYnotC = new_And3Gate(Gate_getOutput(notX), y, Gate_getOutput(notC)); //(not x and y and not c)
+  Gate* xnotYnotC = new_And3Gate(x, Gate_getOutput(notY),Gate_getOutput(notC)); //(x and not y and not c)
+  Gate* xYC = new_And3Gate(x,y,c); //(x and y and c)
+  Gate* or4 = new_Or4Gate(Gate_getOutput(notXnotYC),Gate_getOutput(notXYnotC),Gate_getOutput(xnotYnotC),Gate_getOutput(xYC)); //final
+  //circuit
+	Value** outputs = new_Value_array(1);
+	outputs[0] = Gate_getOutput(or4);
+	Gate** gates = new_Gate_array(8);
+	gates[0] = notX;
+	gates[1] = notY;
+	gates[2] = notC;
+	gates[3] = notXnotYC;
+	gates[4] = notXYnotC;
+	gates[5] = xnotYnotC;
+	gates[6] = xYC;
+	gates[7] = or4 ;
+	//for (int i = 0; i < gates.size(); i++) Gate_print(gates[i]);
+	return  new_Circuit(3, xyz, 1, outputs, 8, gates);
 }
 
 
@@ -149,8 +186,14 @@ int main(int argc, char **argv) {
 	printf("Testing circuit3 :  (y and x) or (not x and not y) \n");
 	test2In1OutAll(c3);
 
-	Circuit* c4 = circuit4();
-	printf("Testing extra credit circuit4 :  write smth \n");
+	Circuit* c4 = circuitD();
+	printf("Testing extra credit circuit4 for gate d: \n");
+	printf("  (not x and y and c) or (x and not y and c) or (x and y and not c) or (x and y and c) \n");
 	test3In1OutAll(c4);
+
+	Circuit* c5 = circuitZ();
+	printf("Testing extra credit circuit5 for gate z : \n");
+	printf(" (not x and not y and c) or (not x and y and not c) or (x and not y and not c) or (x and y and c) \n");
+	test3In1OutAll(c5);
 
 }

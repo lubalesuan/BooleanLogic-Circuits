@@ -2,6 +2,9 @@
  * Value.c
  * Creator: George Ferguson
  * Created: Sun Nov 27 14:08:51 2016
+ * Changed: Luba Le Xuan
+ * Date: Dec 3, 2016
+ * Added arrayValue functions, that prevent from repeating array initiation in main
  */
 
 #include <stdlib.h>
